@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
  
 
 # global declarations
-data_path = "wifi_db/clean_dataset.txt"
+data_path = "wifi_db/noisy_dataset.txt"
 MAX_DEPTH = 4
 
 initial_data = np.loadtxt(data_path)
@@ -132,6 +132,12 @@ fold_size = len(y) // num_folds
 
 # Initialize an array to store the validation accuracies
 validation_accuracies = []
+confusion_matrix = [
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0]
+]
 
 for fold in range(num_folds):
     # Define the indices for the current fold
@@ -151,7 +157,8 @@ for fold in range(num_folds):
     # Evaluate the model
     predictions = [predict_tree(tree, validation_x) for validation_x in X_val]
     accuracy = np.sum(predictions == y_val) / len(y_val)
-    
+    for index in range(len(predictions)):
+        confusion_matrix[y_val[index]-1][predictions[index]-1] += 1
     validation_accuracies.append(accuracy)
 
 # Calculate the mean and standard deviation of the validation accuracies
@@ -160,6 +167,7 @@ std_dev_accuracy = np.std(validation_accuracies)
 
 print(f'Mean accuracy: {mean_accuracy}')
 print(f'Standard deviation: {std_dev_accuracy}')
+print ('confusion matrix:', confusion_matrix)
 
 
 tree = build_tree(X, y, max_depth=MAX_DEPTH)  # Build tree with max depth of 3
